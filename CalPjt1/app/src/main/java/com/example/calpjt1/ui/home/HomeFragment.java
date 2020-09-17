@@ -63,9 +63,12 @@ public class HomeFragment extends Fragment {
 
         //텍스트뷰 생성
         tv = root.findViewById(R.id.home_txt);
-
+        //리스트뷰 생성
+        listView = root.findViewById(R.id.listView);
         //달력 생성
         materialCalendarView = root.findViewById(R.id.calendarView);
+        //버튼 생성
+        btn = root.findViewById(R.id.button2);
 
         materialCalendarView.state().edit()
                 .isCacheCalendarPositionEnabled(true)
@@ -88,57 +91,15 @@ public class HomeFragment extends Fragment {
         //처음은 오늘날짜 선택
         materialCalendarView.setSelectedDate(CalendarDay.today());
 
-        //오늘의 리스트 뷰 생성
-
-        adapter = new ListViewAdapter();
-        listView = root.findViewById(R.id.listView);
-        listView.setAdapter(adapter);
-
-        String date=formatDay(CalendarDay.today());
-        List<String> fileList = new AboutFile(context).FileList(date);
-        if(fileList==null){
-            listView.setVisibility(View.GONE);
-            tv.setVisibility(View.VISIBLE);
-            tv.setText("일정이 없습니다.");
-        }else{
-            tv.setVisibility(View.GONE);
-            listView.setVisibility(View.VISIBLE);
-            for (String a : fileList) {
-                adapter.addItem(a, R.drawable.ic_dashboard_black_24dp, "내용1");
-            }
-        }
-
+        //리스트뷰 생성
+        createListView(formatDay(CalendarDay.today()));
 
         //날짜 클릭이벤트
         materialCalendarView.setOnDateChangedListener(new OnDateSelectedListener() {
             @Override
             public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
-
-                String selectDate= formatDay(date);
-
-//                Toast.makeText(context,Year+"/"+Month+"/"+Day,Toast.LENGTH_SHORT).show();
-
                 //리스트 뷰 생성
-                adapter = new ListViewAdapter();
-
-                listView  = root.findViewById(R.id.listView);
-                listView.setAdapter(adapter);
-
-                List<String> fileList = new AboutFile(context).FileList(selectDate);
-                if(fileList==null){
-                    listView.setVisibility(View.GONE);
-                    tv.setVisibility(View.VISIBLE);
-                    tv.setText("일정이 없습니다.");
-                    //Toast.makeText(context,"오늘일정없음",Toast.LENGTH_SHORT).show();
-                }else{
-                    tv.setVisibility(View.GONE);
-                    listView.setVisibility(View.VISIBLE);
-                    for (String a : fileList) {
-                        adapter.addItem(a, R.drawable.ic_dashboard_black_24dp, "내용1");
-                    }
-                }
-
-
+                createListView(formatDay(date));
             }
         });
 
@@ -156,7 +117,6 @@ public class HomeFragment extends Fragment {
         //여러가지 리스너 이벤트
 
         //버튼 클릭 이벤트 등록
-        btn = root.findViewById(R.id.button2);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -195,6 +155,26 @@ public class HomeFragment extends Fragment {
         return year+month+day;
 
     }
+    private void createListView(String s){
+        adapter = new ListViewAdapter();
+        listView.setAdapter(adapter);
+        String selectDate=s;
+
+        List<String> fileList = new AboutFile(context).FileList(selectDate);
+
+        if(fileList==null){
+            listView.setVisibility(View.GONE);
+            tv.setVisibility(View.VISIBLE);
+            tv.setText("일정이 없습니다.");
+        }else{
+            tv.setVisibility(View.GONE);
+            listView.setVisibility(View.VISIBLE);
+            for (String a : fileList) {
+                adapter.addItem(a, R.drawable.ic_dashboard_black_24dp, "내용1");
+            }
+        }
+
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data){
@@ -203,11 +183,12 @@ public class HomeFragment extends Fragment {
         if(requestCode==0){
             if (resultCode==RESULT_OK) {
                 //성공적으로 끝냄
-                Toast.makeText(context,"성공",Toast.LENGTH_SHORT).show();
+                createListView(formatDay(materialCalendarView.getSelectedDate())); //리스트뷰 새로고침
+
 
             }else{
                 //뒤로가기등 성공적으로 못끝냄
-                Toast.makeText(context,"실패",Toast.LENGTH_SHORT).show();
+
             }
         }else if(requestCode==1){
         }
