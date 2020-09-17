@@ -11,13 +11,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
+import com.example.calpjt1.AboutFile;
 import com.example.calpjt1.AddScheduleActivity;
 import com.example.calpjt1.R;
 import com.example.calpjt1.ui.home.decorator.SaturdayDecorator;
@@ -30,7 +31,12 @@ import com.prolificinteractive.materialcalendarview.CalendarMode;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 
-import java.util.Calendar;
+
+import java.text.SimpleDateFormat;
+import java.time.Year;
+import java.util.List;
+
+import static android.app.Activity.RESULT_OK;
 
 
 @RequiresApi(api = Build.VERSION_CODES.O)
@@ -43,6 +49,7 @@ public class HomeFragment extends Fragment {
     private MaterialCalendarView materialCalendarView;
     private ListView listView;
     private Button btn;
+    private TextView tv;
 
     private ListViewAdapter adapter;
 
@@ -53,6 +60,9 @@ public class HomeFragment extends Fragment {
         final View root = inflater.inflate(R.layout.fragment_home, container, false);
 
         context=container.getContext();
+
+        //텍스트뷰 생성
+        tv = root.findViewById(R.id.home_txt);
 
         //달력 생성
         materialCalendarView = root.findViewById(R.id.calendarView);
@@ -79,23 +89,32 @@ public class HomeFragment extends Fragment {
         materialCalendarView.setSelectedDate(CalendarDay.today());
 
         //오늘의 리스트 뷰 생성
+
         adapter = new ListViewAdapter();
         listView = root.findViewById(R.id.listView);
         listView.setAdapter(adapter);
-        adapter.addItem(String.valueOf(CalendarDay.today().getDate()),R.drawable.ic_dashboard_black_24dp,"내용1");
-        adapter.addItem(String.valueOf(CalendarDay.today().getDate()),R.drawable.ic_dashboard_black_24dp,"내용2");
-        adapter.addItem(String.valueOf(CalendarDay.today().getDate()),R.drawable.ic_dashboard_black_24dp,"내용3");
-        adapter.addItem(String.valueOf(CalendarDay.today().getDate()),R.drawable.ic_dashboard_black_24dp,"내용4");
-        adapter.addItem(String.valueOf(CalendarDay.today().getDate()),R.drawable.ic_dashboard_black_24dp,"내용5");
+
+        String date=formatDay(CalendarDay.today());
+        List<String> fileList = new AboutFile(context).FileList(date);
+        if(fileList==null){
+            listView.setVisibility(View.GONE);
+            tv.setVisibility(View.VISIBLE);
+            tv.setText("일정이 없습니다.");
+        }else{
+            tv.setVisibility(View.GONE);
+            listView.setVisibility(View.VISIBLE);
+            for (String a : fileList) {
+                adapter.addItem(a, R.drawable.ic_dashboard_black_24dp, "내용1");
+            }
+        }
 
 
         //날짜 클릭이벤트
         materialCalendarView.setOnDateChangedListener(new OnDateSelectedListener() {
             @Override
             public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
-                int Year = date.getYear();
-                int Month = date.getMonth() + 1;
-                int Day = date.getDay();
+
+                String selectDate= formatDay(date);
 
 //                Toast.makeText(context,Year+"/"+Month+"/"+Day,Toast.LENGTH_SHORT).show();
 
@@ -105,11 +124,21 @@ public class HomeFragment extends Fragment {
                 listView  = root.findViewById(R.id.listView);
                 listView.setAdapter(adapter);
 
-                adapter.addItem(String.valueOf(date.getDate()),R.drawable.ic_dashboard_black_24dp,"내용1");
-                adapter.addItem(String.valueOf(date.getDate()),R.drawable.ic_dashboard_black_24dp,"내용2");
-                adapter.addItem(String.valueOf(date.getDate()),R.drawable.ic_dashboard_black_24dp,"내용3");
-                adapter.addItem(String.valueOf(date.getDate()),R.drawable.ic_dashboard_black_24dp,"내용4");
-                adapter.addItem(String.valueOf(date.getDate()),R.drawable.ic_dashboard_black_24dp,"내용5");
+                List<String> fileList = new AboutFile(context).FileList(selectDate);
+                if(fileList==null){
+                    listView.setVisibility(View.GONE);
+                    tv.setVisibility(View.VISIBLE);
+                    tv.setText("일정이 없습니다.");
+                    //Toast.makeText(context,"오늘일정없음",Toast.LENGTH_SHORT).show();
+                }else{
+                    tv.setVisibility(View.GONE);
+                    listView.setVisibility(View.VISIBLE);
+                    for (String a : fileList) {
+                        adapter.addItem(a, R.drawable.ic_dashboard_black_24dp, "내용1");
+                    }
+                }
+
+
             }
         });
 
@@ -132,11 +161,10 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 final CalendarDay selectDate = materialCalendarView.getSelectedDate();
+
                 Intent intent = new Intent(context, AddScheduleActivity.class);
-
-                intent.putExtra("selectDate", selectDate.getDate().toString());
-
-                startActivity(intent);//액티비티 띄우기
+                intent.putExtra("selectDate", formatDay(selectDate));
+                startActivityForResult(intent,0);//액티비티 띄우기
 
                 //Toast.makeText(context,String.valueOf(selectDate.getDate()),Toast.LENGTH_SHORT).show();
             }
@@ -155,10 +183,35 @@ public class HomeFragment extends Fragment {
 
 
         //제스처 이벤트 등록
-
-
         return root;
 
     }
+
+    private String formatDay(CalendarDay c){
+        String year = String.valueOf(c.getYear());
+        String month = String.valueOf(c.getMonth()+1);
+        String day = String.valueOf(c.getDay());
+
+        return year+month+day;
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode==0){
+            if (resultCode==RESULT_OK) {
+                //성공적으로 끝냄
+                Toast.makeText(context,"성공",Toast.LENGTH_SHORT).show();
+
+            }else{
+                //뒤로가기등 성공적으로 못끝냄
+                Toast.makeText(context,"실패",Toast.LENGTH_SHORT).show();
+            }
+        }else if(requestCode==1){
+        }
+    }
+
 
 }

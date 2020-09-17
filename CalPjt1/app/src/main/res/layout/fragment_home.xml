@@ -6,33 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".ui.home.HomeFragment">
 
-
-<!--    <LinearLayout-->
-<!--        android:orientation="vertical"-->
-<!--        android:layout_height="match_parent"-->
-<!--        android:layout_width="match_parent">-->
-
-<!--        <com.prolificinteractive.materialcalendarview.MaterialCalendarView-->
-<!--            android:id="@+id/calendarView"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toTopOf="parent"-->
-<!--            app:mcv_selectionColor="#D3D3D3D3"-->
-<!--            app:mcv_showOtherDates="all"/>-->
-<!--        <ListView-->
-<!--            android:id="@+id/listView"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent"-->
-<!--            android:choiceMode="singleChoice"-->
-<!--            android:listSelector="@drawable/selector"-->
-<!--            android:drawSelectorOnTop="true">-->
-<!--            -->
-<!--        </ListView>-->
-
-<!--    </LinearLayout>-->
-
     <com.prolificinteractive.materialcalendarview.MaterialCalendarView
         android:id="@+id/calendarView"
         android:layout_width="match_parent"
@@ -53,9 +26,19 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/calendarView">
+        app:layout_constraintTop_toBottomOf="@+id/calendarView"/>
 
-    </ListView>
+    <TextView
+        android:id="@+id/home_txt"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:textSize="25dp"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/calendarView"
+        />
 
     <Button
         android:id="@+id/button2"
