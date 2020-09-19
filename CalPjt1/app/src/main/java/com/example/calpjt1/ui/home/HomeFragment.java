@@ -2,6 +2,7 @@ package com.example.calpjt1.ui.home;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -9,6 +10,7 @@ import android.view.LayoutInflater;
 
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
@@ -21,6 +23,7 @@ import androidx.fragment.app.Fragment;
 import com.example.calpjt1.AboutFile;
 import com.example.calpjt1.AddScheduleActivity;
 import com.example.calpjt1.R;
+import com.example.calpjt1.ui.home.decorator.EventDecorator;
 import com.example.calpjt1.ui.home.decorator.SaturdayDecorator;
 import com.example.calpjt1.ui.home.decorator.SundayDecorator;
 import com.example.calpjt1.ui.home.decorator.TodayDecorator;
@@ -32,8 +35,14 @@ import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 
 
+import java.io.File;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Year;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
@@ -52,6 +61,7 @@ public class HomeFragment extends Fragment {
     private TextView tv;
 
     private ListViewAdapter adapter;
+
 
 
 
@@ -75,18 +85,29 @@ public class HomeFragment extends Fragment {
                 .setFirstDayOfWeek(1)
                 .setCalendarDisplayMode(CalendarMode.MONTHS)
                 .commit();
+        
 
         materialCalendarView.setShowOtherDates(MaterialCalendarView.SHOW_OTHER_MONTHS);
 
 //        materialCalendarView.setShowOtherDates(MaterialCalendarView.SHOW_NONE);
 //        materialCalendarView.setDynamicHeightEnabled(true);
 
+        try {
+            materialCalendarView.addDecorators(
+                    new SundayDecorator(),
+                    new SaturdayDecorator(),
+                    new TodayDecorator(),
+                    new EventDecorator(Color.RED, FileList())
+            );
+        }
+        catch (Exception e){
+            materialCalendarView.addDecorators(
+                    new SundayDecorator(),
+                    new SaturdayDecorator(),
+                    new TodayDecorator()
+            );
 
-        materialCalendarView.addDecorators(
-                new SundayDecorator(),
-                new SaturdayDecorator(),
-                new TodayDecorator()
-        );
+        }
 
         //처음은 오늘날짜 선택
         materialCalendarView.setSelectedDate(CalendarDay.today());
@@ -103,16 +124,6 @@ public class HomeFragment extends Fragment {
             }
         });
 
-//        여기서 데이터 받아오고싶게 만들고싶음
-//        homeViewModel =
-//                ViewModelProviders.of(this).get(HomeViewModel.class);
-//        final TextView textView = root.findViewById(R.id.textView);
-//        homeViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-//            @Override
-//            public void onChanged(@Nullable String s) {
-//                textView.setText(s);
-//            }
-//        });
 
         //여러가지 리스너 이벤트
 
@@ -140,21 +151,47 @@ public class HomeFragment extends Fragment {
             }
         });
 
-
-
         //제스처 이벤트 등록
         return root;
 
     }
 
-    private String formatDay(CalendarDay c){
-        String year = String.valueOf(c.getYear());
-        String month = String.valueOf(c.getMonth()+1);
-        String day = String.valueOf(c.getDay());
+    //캘린더데이를 문자열로
+    public static String formatDay(CalendarDay cal)
+    {
+        // 날짜를 통신용 문자열로 변경
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        return formatter.format(cal.getDate());
+    }
 
-        return year+month+day;
+    //문자열을 캘린더데이로 변환
+    private CalendarDay formatCal(String s){
+        String[] a = s.split("-");
+        CalendarDay cal=CalendarDay.from(Integer.valueOf(a[0]),Integer.valueOf(a[1])-1,Integer.valueOf(a[2]));
+
+        return cal;
+    }
+
+
+    // 파일리스트 보여줌
+    public List<CalendarDay> FileList() {
+        String path = context.getFilesDir().toString();
+        try {
+            File directory = new File(path);
+            File[] files = directory.listFiles();
+
+            List<CalendarDay> filesNameList = new ArrayList<>();
+
+            for (int i = 0; i < files.length; i++) {
+                filesNameList.add(formatCal(files[i].getName()));
+            }
+            return filesNameList;
+        }catch (Exception e){
+            return null;
+        }
 
     }
+
     private void createListView(String s){
         adapter = new ListViewAdapter();
         listView.setAdapter(adapter);
@@ -176,6 +213,7 @@ public class HomeFragment extends Fragment {
 
     }
 
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
@@ -184,6 +222,7 @@ public class HomeFragment extends Fragment {
             if (resultCode==RESULT_OK) {
                 //성공적으로 끝냄
                 createListView(formatDay(materialCalendarView.getSelectedDate())); //리스트뷰 새로고침
+                materialCalendarView.addDecorators(new EventDecorator(Color.RED, FileList()));
 
 
             }else{
@@ -193,6 +232,5 @@ public class HomeFragment extends Fragment {
         }else if(requestCode==1){
         }
     }
-
 
 }

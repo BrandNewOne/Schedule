@@ -2,6 +2,8 @@ package com.example.calpjt1;
 
 import android.content.Context;
 
+import com.prolificinteractive.materialcalendarview.CalendarDay;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -11,6 +13,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class AboutFile {
@@ -18,6 +21,32 @@ public class AboutFile {
 
     public AboutFile(Context context){
         this.context=context;
+    }
+
+
+    private CalendarDay formatCal(String s){
+        String[] a = s.split("-");
+        CalendarDay cal=CalendarDay.from(Integer.valueOf(a[0]),Integer.valueOf(a[1]),Integer.valueOf(a[2]));
+
+        return cal;
+    }
+
+    public List<CalendarDay> FileList() {
+        String path = context.getFilesDir().toString();
+        try {
+            File directory = new File(path);
+            File[] files = directory.listFiles();
+
+            List<CalendarDay> filesNameList = new ArrayList<>();
+
+            for (int i = 0; i < files.length; i++) {
+                filesNameList.add(formatCal(files[i].getName()));
+            }
+            return filesNameList;
+        }catch (Exception e){
+            return null;
+        }
+
     }
 
     public List<String> FileList(String folderName) {

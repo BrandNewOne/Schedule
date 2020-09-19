@@ -15,7 +15,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:mcv_selectionColor="#D3D3D3D3"
         app:mcv_showOtherDates="all"/>
-
     <ListView
         android:id="@+id/listView"
         android:layout_width="match_parent"
