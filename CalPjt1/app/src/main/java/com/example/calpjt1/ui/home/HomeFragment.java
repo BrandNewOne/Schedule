@@ -19,10 +19,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.calpjt1.AboutFile;
 import com.example.calpjt1.AddScheduleActivity;
 import com.example.calpjt1.R;
+//import com.example.calpjt1.ViewPagerAdapter;
 import com.example.calpjt1.ui.home.decorator.EventDecorator;
 import com.example.calpjt1.ui.home.decorator.SaturdayDecorator;
 import com.example.calpjt1.ui.home.decorator.SundayDecorator;
@@ -54,7 +56,9 @@ public class HomeFragment extends Fragment {
     private Context context;
     private HomeViewModel homeViewModel;
 
+
     //여러가지 xml 물건들
+    private ViewPager2 viewPager2;
     private MaterialCalendarView materialCalendarView;
     private ListView listView;
     private Button btn;
@@ -71,6 +75,9 @@ public class HomeFragment extends Fragment {
 
         context=container.getContext();
 
+        //viewPager2 생성
+//        viewPager2 = root.findViewById(R.id.viewPager2);
+
         //텍스트뷰 생성
         tv = root.findViewById(R.id.home_txt);
         //리스트뷰 생성
@@ -85,7 +92,7 @@ public class HomeFragment extends Fragment {
                 .setFirstDayOfWeek(1)
                 .setCalendarDisplayMode(CalendarMode.MONTHS)
                 .commit();
-        
+
 
         materialCalendarView.setShowOtherDates(MaterialCalendarView.SHOW_OTHER_MONTHS);
 
@@ -156,6 +163,7 @@ public class HomeFragment extends Fragment {
 
     }
 
+    //===========================================  나중에 리팩토링 해야함==============================================================
     //캘린더데이를 문자열로
     public static String formatDay(CalendarDay cal)
     {
